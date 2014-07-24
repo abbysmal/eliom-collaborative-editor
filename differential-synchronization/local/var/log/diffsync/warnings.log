@@ -1,0 +1,15 @@
+Jul 24 15:40:08: main: Command pipe created
+Jul 24 15:40:08: main: Initializing Ocsipersist-dbm...
+Jul 24 15:40:08: main: Launching a new Ocsidbm process: /Users/engil/.opam/4.01.0/lib/ocsigenserver/extensions/ocsidbm on directory local/var/data/diffsync/ocsipersist.
+Jul 24 15:40:09: main: ...Initialization of Ocsipersist-dbm complete
+Jul 24 15:40:09: main: While parsing config file, tag <host>: No defaulthostname, assuming it is "kokoro"
+Jul 24 15:40:09: main: Ocsigen has been launched (initialisations ok)
+Jul 24 15:40:38: main: Unexpected exception in Server.wait_connection (handle connection): Invalid_argument("Lwt.wakeup_result")
+Jul 24 15:41:15: main: Initializing Ocsipersist-dbm...
+Jul 24 15:41:15: main: Launching a new Ocsidbm process: /Users/engil/.opam/4.01.0/lib/ocsigenserver/extensions/ocsidbm on directory local/var/data/diffsync/ocsipersist.
+Jul 24 15:41:16: main: ...Initialization of Ocsipersist-dbm complete
+Jul 24 15:41:16: main: While parsing config file, tag <host>: No defaulthostname, assuming it is "kokoro"
+Jul 24 15:41:16: main: Ocsigen has been launched (initialisations ok)
+Jul 24 15:42:02: main: Unexpected exception in Server.wait_connection (handle connection): Invalid_argument("Lwt.wakeup_result")
+Jul 24 15:42:06: main: Unexpected exception in Server.wait_connection (handle connection): Invalid_argument("Lwt.wakeup_result")
+Jul 24 15:42:37: main: Unexpected exception in Server.wait_connection (handle connection): Invalid_argument("Lwt.wakeup_result")

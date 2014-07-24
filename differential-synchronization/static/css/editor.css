@@ -1,0 +1,9 @@
+* {
+    font-family: sans-serif;
+}
+
+#editor {
+  margin: 15px;
+  padding: 20px;
+  border: 2px dashed #CCC;
+}
