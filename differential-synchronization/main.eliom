@@ -7,7 +7,8 @@ module Diffsync_app =
   end)
 
 let () =
+  let editor = Templates.format_page () in
   Diffsync_app.register
     ~service:Services.main_service
     (fun () () ->
-       Lwt.return @@ Templates.format_page Client.content)
+       Lwt.return @@ editor)

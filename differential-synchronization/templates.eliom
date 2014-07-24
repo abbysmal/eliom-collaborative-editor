@@ -2,7 +2,7 @@ open Eliom_content
 open Html5.D
 open Html5.F
 
-let format_page content =
+let format_page _ =
   let er = Eliom_reference.eref ~scope:Eliom_common.site_scope
   (Types.new_document "toto") in
   let ed = Client.create () in
@@ -14,5 +14,5 @@ let format_page content =
      ~js:[["js";"libs.js"]]
      (body [
          div [h1 [pcdata "Collaborative editor"]];
-         elt
+         div[elt]
        ]))
