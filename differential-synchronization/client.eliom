@@ -7,7 +7,7 @@ open Types
 
 
 type t =
-  (Html5_types.textarea Eliom_content.Html5.D.Raw.elt * (bus_message, bus_message) Eliom_bus.t)
+  (Html5_types.textarea Eliom_content.Html5.D.elt * (bus_message, bus_message) Eliom_bus.t)
 
 }}
 
@@ -236,7 +236,7 @@ let create _ =
   let patches_bus = Eliom_bus.create
       ~scope:Eliom_common.site_scope Json.t<bus_message>
   in
-  let elt = Eliom_content.Html5.D.Raw.textarea ~a:[] in
+  let elt = Eliom_content.Html5.D.raw_textarea ~a:[] ~name:"editor" () in
   (elt, patches_bus)
 
 let init_and_register ((elt, bus): t) eref =
