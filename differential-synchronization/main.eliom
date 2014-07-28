@@ -29,7 +29,7 @@ let () =
        handler patch);
 
   let get_document name = get_shadowcopy ()
-    >>= fun {id = id; text = scopy} ->
+    >>= fun {Types.id = id; Types.text = scopy} ->
     Lwt.return (`Result (scopy, id)) in
 
   Eliom_registration.Ocaml.register
@@ -50,7 +50,7 @@ let () =
          div[elt]
        ])) in
 
-    let tmpl = Templates.format_page elt in
+    let tmpl = format_page elt in
        ignore {unit Lwt.t{
            Lwt.return (Client.onload %patches_bus %elt ())
          }};
