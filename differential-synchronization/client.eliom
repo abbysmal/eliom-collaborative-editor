@@ -58,78 +58,6 @@ let make_diff text old_text rev client_id =
   {from_revision = rev; diffs = (Array.to_list diff); client = client_id;}
 
 
-(* Caret handling functions *)
-let save_selection elt =
-  let sel = Dom_html.window##getSelection () in
-  let range = sel##getRangeAt(0) in
-  let pre_range = range##cloneRange () in
-  pre_range##selectNodeContents(elt);
-  pre_range##setEnd(range##startContainer, range##startOffset);
-  let start = (pre_range##toString())##length in
-  (start, start + (range##toString())##length)
-
-let get_length node =
-  match Js.Opt.to_option (Dom.CoerceTo.text node)with
-  | Some i -> i##length
-  | None -> 0
-
-(* Function used to get the whole text without markup *)
-let get_text elt =
-  let text = ref "" in
-  let queue = Queue.create () in
-  let rec inner queue node =
-    if node##nodeType = Dom.TEXT
-    then
-      text := !text ^ (Js.to_string node##nodeValue);
-    let len = node##childNodes##length in
-    for i = 0 to (len - 1) do
-      Queue.push (Js.Opt.get (node##childNodes##item (i)) (fun () -> assert false)) queue
-    done;
-    try inner queue (Queue.pop queue) with Queue.Empty -> () in
-  inner queue elt;
-  !text
-
-
-let restore_selection elt (startpoint, endpoint) =
-  let char_index = ref 0 in
-  let range = Dom_html.document##createRange() in
-  range##setStart(elt, 0);
-  range##collapse(Js._true);
-  let queue = Queue.create () in
-  let foundstart = ref false in
-  let stop = ref false in
-  let rec inner queue node =
-    if not !stop then
-      if node##nodeType = Dom.TEXT
-      then
-        begin
-          let next_index = !char_index + (get_length node) in
-          if not !foundstart && (startpoint >= !char_index) && (startpoint <= next_index) then
-            begin
-              range##setStart(node, startpoint - !char_index);
-              foundstart := true
-            end;
-          if !foundstart && (endpoint >= !char_index) && (endpoint <= next_index) then
-            begin
-              range##setEnd(node, endpoint - !char_index);
-              stop := true
-            end;
-          char_index := next_index
-        end
-      else
-        begin
-          let max = node##childNodes##length in
-          for i = 0 to (max - 1) do
-            Queue.push (Js.Opt.get (node##childNodes##item (i)) (fun () -> assert false)) queue
-          done;
-        end;
-      try inner queue (Queue.pop queue) with Queue.Empty -> ()
-  in
-  inner queue elt;
-  let sel = Dom_html.window##getSelection() in
-  sel##removeAllRanges();
-  sel##addRange(range)
-
 let apply_patches rev editor shadow_copy patches =
   List.iter (fun (id, diff, prev) ->
       if prev = !rev then
@@ -148,12 +76,10 @@ let apply_update rev editor shadow_copy diff prev =
   let dmp = DiffMatchPatch.make () in
   let patch_scopy = DiffMatchPatch.patch_make dmp (Js.to_string !shadow_copy) diff in
   let patch_editor = DiffMatchPatch.patch_make dmp (current_text) diff in
-  (* let saved = save_selection (editor :> Dom.node Js.t) in *)
   editor##value <- Js.string @@ DiffMatchPatch.patch_apply dmp patch_editor current_text;
   shadow_copy := Js.string @@ DiffMatchPatch.patch_apply
       dmp patch_scopy (Js.to_string !shadow_copy);
-  rev := prev(* ; *)
-  (* restore_selection (editor :> Dom.node Js.t) saved *)
+  rev := prev
 
 
 let onload patches_bus editor_elt () =
