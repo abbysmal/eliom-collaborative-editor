@@ -230,39 +230,3 @@ let onload patches_bus editor_elt () =
              end
           )))
 }}
-{server{
-
-let create _ =
-  let patches_bus = Eliom_bus.create
-      ~scope:Eliom_common.site_scope Json.t<bus_message>
-  in
-  let elt = Eliom_content.Html5.D.raw_textarea ~a:[] ~name:"editor" () in
-  (elt, patches_bus)
-
-let init_and_register ((elt, bus): t) eref =
-  let append_shadowcopy, get_shadowcopy =
-    ((fun elm -> Eliom_reference.set eref elm),
-     (fun () -> Eliom_reference.get eref)) in
-
-  let handler = Patches.handle_patch_request get_shadowcopy append_shadowcopy bus in
-  Eliom_registration.Ocaml.register
-    ~service:send_patch
-    (fun () patch ->
-       handler patch);
-
-  let get_document name = get_shadowcopy ()
-    >>= fun {id = id; text = scopy} ->
-    Lwt.return (`Result (scopy, id)) in
-
-  Eliom_registration.Ocaml.register
-    ~service:Services.get_document
-    (fun () () ->
-  get_document ());
-  ignore {unit Lwt.t{
-      Lwt_js.sleep 0.3 >>= (fun () -> Lwt.return (onload %bus %elt ()))
-  }};
-  Lwt.return_unit
-
-let get_elt (elt, _) = elt
-
-}}
