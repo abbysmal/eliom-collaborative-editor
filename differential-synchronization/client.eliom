@@ -57,6 +57,20 @@ let make_diff text old_text rev client_id =
   let diff = DiffMatchPatch.diff_main dmp old_text text in
   {from_revision = rev; diffs = (Array.to_list diff); client = client_id;}
 
+let get_cursor_position editor =
+  let sel_start = editor##selectionStart in
+  let sel_end = editor##selectionEnd in
+  sel_start, sel_end, "lol"
+
+let set_cursor_position dmp editor (sel_start, sel_end, pattern) =
+  let length = editor##value##length in
+  let new_start = DiffMatchPatch.match_main dmp (Js.to_string (editor##value)) pattern sel_start in
+  let new_end =
+    if sel_start = sel_end then new_start
+    else new_start + (sel_end - sel_start) in
+  editor##setSelectionStart(new_start);
+  editor##setSelectionEnd(new_end)
+
 
 let apply_patches rev editor shadow_copy patches =
   List.iter (fun (id, diff, prev) ->
@@ -64,11 +78,13 @@ let apply_patches rev editor shadow_copy patches =
         let dmp = DiffMatchPatch.make () in
         let patch_scopy = DiffMatchPatch.patch_make dmp (Js.to_string !shadow_copy) diff in
         let patch_editor = DiffMatchPatch.patch_make dmp (Js.to_string editor##value) diff in
-        editor##value <- Js.string @@ DiffMatchPatch.patch_apply
-            dmp patch_editor (Js.to_string editor##value);
+
+        editor##value <- Js.string @@ DiffMatchPatch.patch_apply dmp patch_editor (Js.to_string editor##value);
+
         shadow_copy := Js.string @@ DiffMatchPatch.patch_apply
             dmp patch_scopy (Js.to_string !shadow_copy);
-       rev := prev) (List.rev patches)
+        rev := prev
+    ) (List.rev patches)
 
 
 let apply_update rev editor shadow_copy diff prev =
