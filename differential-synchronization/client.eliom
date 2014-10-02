@@ -60,7 +60,17 @@ let make_diff text old_text rev client_id =
 let get_cursor_position editor =
   let sel_start = editor##selectionStart in
   let sel_end = editor##selectionEnd in
-  sel_start, sel_end, "lol"
+  let text = Js.to_string (editor##value) in
+  let length = String.length text in
+  let end_cut =
+    if sel_end > sel_start then sel_end else
+      if sel_start > (length - 3) then
+        1
+      else
+        3
+  in
+  let pattern = if sel_start + 1 >= length then "" else String.sub text sel_start (end_cut - sel_start) in
+  sel_start, sel_end, pattern
 
 let set_cursor_position dmp editor (sel_start, sel_end, pattern) =
   let length = editor##value##length in
@@ -68,19 +78,18 @@ let set_cursor_position dmp editor (sel_start, sel_end, pattern) =
   let new_end =
     if sel_start = sel_end then new_start
     else new_start + (sel_end - sel_start) in
-  editor##setSelectionStart(new_start);
-  editor##setSelectionEnd(new_end)
+  editor##selectionStart <- new_start ;
+  editor##selectionEnd <- new_end
 
 
 let apply_patches rev editor shadow_copy patches =
   List.iter (fun (id, diff, prev) ->
       if prev = !rev then
+        let loc = get_cursor_position editor in
         let dmp = DiffMatchPatch.make () in
         let patch_scopy = DiffMatchPatch.patch_make dmp (Js.to_string !shadow_copy) diff in
         let patch_editor = DiffMatchPatch.patch_make dmp (Js.to_string editor##value) diff in
-
         editor##value <- Js.string @@ DiffMatchPatch.patch_apply dmp patch_editor (Js.to_string editor##value);
-
         shadow_copy := Js.string @@ DiffMatchPatch.patch_apply
             dmp patch_scopy (Js.to_string !shadow_copy);
         rev := prev
@@ -88,11 +97,13 @@ let apply_patches rev editor shadow_copy patches =
 
 
 let apply_update rev editor shadow_copy diff prev =
+  let loc = get_cursor_position editor in
   let current_text = Js.to_string editor##value in
   let dmp = DiffMatchPatch.make () in
   let patch_scopy = DiffMatchPatch.patch_make dmp (Js.to_string !shadow_copy) diff in
   let patch_editor = DiffMatchPatch.patch_make dmp (current_text) diff in
   editor##value <- Js.string @@ DiffMatchPatch.patch_apply dmp patch_editor current_text;
+  set_cursor_position dmp editor loc;
   shadow_copy := Js.string @@ DiffMatchPatch.patch_apply
       dmp patch_scopy (Js.to_string !shadow_copy);
   rev := prev
@@ -135,7 +146,7 @@ let onload patches_bus editor_elt () =
           begin
             if id != client_id && is_ok () then
               begin
-                apply_update rev editor shadow_copy diff prev
+                apply_update rev (Obj.magic editor) shadow_copy diff prev
               end
             else if id != client_id then
               begin
