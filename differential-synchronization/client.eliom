@@ -82,7 +82,7 @@ let apply_update rev editor shadow_copy diff prev =
   rev := prev
 
 
-let onload (editor_elt, patches_bus)  =
+let onload editor_elt patches_bus  =
   Random.self_init ();
 
   (* Is the current revision server-side *)
@@ -173,7 +173,7 @@ let onload (editor_elt, patches_bus)  =
 
   let retrieve_elt (elt, _) = elt
 
-  let init_elt t set get =
-    {unit{ ignore @@ onload %t }}
+  let init_elt t =
+    {unit{ ignore @@ onload %t.elt %t.bus }}
 
 }}
