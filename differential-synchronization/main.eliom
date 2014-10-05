@@ -29,7 +29,6 @@ let () =
     (fun () () -> get_document ());
 
   let elt = Client.create "" append_shadowcopy get_shadowcopy in
-  Client.init_elt elt;
   Diffsync_app.register
     ~service:Services.main_service
     (fun () () ->
@@ -42,6 +41,6 @@ let () =
          div [h1 [pcdata "Collaborative editor"]];
          div[Client.get_elt elt]
        ])) in
-
+    Client.init_elt elt;
     let tmpl = format_page elt in
        Lwt.return @@ tmpl)

@@ -169,7 +169,7 @@ let onload editor_elt patches_bus  =
   let get_elt t = t.elt
 
   let init_elt t =
-    (* let elt = t.elt in
-    let bus = t.bus in *)
-    {unit{ print_endline "lol"(*onload %elt %bus *) }}
+    let elt = t.elt in
+    let bus = t.bus in
+    {unit{ onload %elt %bus}}
 }}
