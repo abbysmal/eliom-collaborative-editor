@@ -7,7 +7,9 @@ open Types
 
 
 type t =
-  (Html5_types.textarea Eliom_content.Html5.D.elt * (bus_message, bus_message) Eliom_bus.t)
+  { elt : Html5_types.textarea Eliom_content.Html5.D.elt; 
+    bus : (bus_message, bus_message) Eliom_bus.t;
+    set : (Types.doc -> unit Lwt.t); get : (unit -> Types.doc Lwt.t) }
 
 }}
 
@@ -20,9 +22,6 @@ let send_patch =
              Eliom_service.rt)
     ~post_params: (Eliom_parameter.ocaml "lol" Json.t<request>)
     ()
-
-let patches_bus = Eliom_bus.create
-    ~scope:Eliom_common.site_scope Json.t<bus_message>
 
 }}
 
@@ -83,7 +82,7 @@ let apply_update rev editor shadow_copy diff prev =
   rev := prev
 
 
-let onload patches_bus editor_elt () =
+let onload (editor_elt, patches_bus)  =
   Random.self_init ();
 
   (* Is the current revision server-side *)
@@ -156,4 +155,25 @@ let onload patches_bus editor_elt () =
                | `Refused (srev, scopy) -> Lwt.return ()
              end
           )))
+}}
+
+{server{
+
+  let create txt set get =
+    let bus = Eliom_bus.create ~scope:Eliom_common.site_scope Json.t<bus_message> in
+    let handler = Patches.handle_patch_request get set bus in
+    let elt = Eliom_content.Html5.D.raw_textarea ~a:[] ~name:"editor" () in
+    Eliom_registration.Ocaml.register ~service:send_patch (fun () patch -> handler patch);
+    { elt; bus; set; get}
+
+
+    
+}}
+{shared{
+
+  let retrieve_elt (elt, _) = elt
+
+  let init_elt t set get =
+    {unit{ ignore @@ onload %t }}
+
 }}

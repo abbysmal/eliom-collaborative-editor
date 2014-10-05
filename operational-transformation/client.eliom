@@ -146,7 +146,8 @@ let onload patches_bus editor_elt () =
              >>= fun () ->
              let diff = make_diff (Js.to_string editor##value)
                  (Js.to_string !shadow_copy) !rev client_id in
-             Eliom_client.call_ocaml_service ~service:%send_patch () diff
+             let ots = ots_of_diff diff in
+             Eliom_client.call_ocaml_service ~service:%send_patch () ots
              >>= fun response ->
              begin
                match response with

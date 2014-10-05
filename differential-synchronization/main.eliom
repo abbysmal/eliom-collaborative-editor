@@ -51,7 +51,4 @@ let () =
        ])) in
 
     let tmpl = format_page elt in
-       ignore {unit Lwt.t{
-           Lwt.return (Client.onload %patches_bus %elt ())
-         }};
        Lwt.return @@ tmpl)
