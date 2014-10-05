@@ -9,17 +9,12 @@ module Diffsync_app =
     let application_name = "diffsync"
   end)
 
-let patches_bus = Eliom_bus.create
-    ~scope:Eliom_common.site_scope Json.t<Types.bus_message>
-
 let () =
   let eref = Eliom_reference.eref ~scope:Eliom_common.site_scope
-      (Types.new_document "document") in
-
+      (Editor_types.new_document "document") in
   let append_shadowcopy, get_shadowcopy =
     ((fun elm -> Eliom_reference.set eref elm),
      (fun () -> Eliom_reference.get eref)) in
-
   let get_document _ = get_shadowcopy ()
     >>= fun doc ->
     Lwt.return (`Result (doc.text, doc.id)) in
@@ -28,7 +23,7 @@ let () =
     ~service:Services.get_document
     (fun () () -> get_document ());
 
-  let elt = Client.create "" append_shadowcopy get_shadowcopy in
+  let elt = Editor_client.create "" append_shadowcopy get_shadowcopy in
   Diffsync_app.register
     ~service:Services.main_service
     (fun () () ->
@@ -39,8 +34,8 @@ let () =
      ~js:[["js";"libs.js"]]
      (body [
          div [h1 [pcdata "Collaborative editor"]];
-         div[Client.get_elt elt]
+         div[Editor_client.get_elt elt]
        ])) in
-    Client.init_elt elt;
+    Editor_client.init_elt elt;
     let tmpl = format_page elt in
        Lwt.return @@ tmpl)

@@ -3,7 +3,7 @@
 open Eliom_content
 open Html5.D
 open Eliom_lib.Lwt_ops
-open Types
+open Editor_types
 
 
 }}
@@ -13,7 +13,7 @@ open Types
 type t =
   { elt : Html5_types.textarea Eliom_content.Html5.D.elt; 
     bus : (bus_message, bus_message) Eliom_bus.t;
-    set : (Types.doc -> unit Lwt.t); get : (unit -> Types.doc Lwt.t) }
+    set : (Editor_types.doc -> unit Lwt.t); get : (unit -> Editor_types.doc Lwt.t) }
 
 let send_patch =
   Eliom_service.Ocaml.post_coservice'
@@ -161,7 +161,7 @@ let onload editor_elt patches_bus  =
 
   let create txt set get =
     let bus = Eliom_bus.create ~scope:Eliom_common.site_scope Json.t<bus_message> in
-    let handler = Patches.handle_patch_request get set bus in
+    let handler = Editor_patches.handle_patch_request get set bus in
     let elt = Eliom_content.Html5.D.raw_textarea ~a:[] ~name:"editor" () in
     Eliom_registration.Ocaml.register ~service:send_patch (fun () patch -> handler patch);
     { elt; bus; set; get}

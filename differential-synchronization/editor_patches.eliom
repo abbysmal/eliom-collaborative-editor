@@ -1,6 +1,5 @@
-
 open Eliom_lib.Lwt_ops
-open Types
+open Editor_types
 
 let insert_at text str id =
   try
