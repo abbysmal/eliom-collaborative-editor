@@ -12,10 +12,12 @@ module Diffsync_app =
 let () =
   let eref = Eliom_reference.eref ~scope:Eliom_common.site_scope
       (Editor_types.new_document "document") in
-  let append_shadowcopy, get_shadowcopy =
+
+  let add_text, get_text =
     ((fun elm -> Eliom_reference.set eref elm),
      (fun () -> Eliom_reference.get eref)) in
-  let get_document _ = get_shadowcopy ()
+  
+  let get_document _ = get_text ()
     >>= fun doc ->
     Lwt.return (`Result (doc.text, doc.id)) in
 
@@ -23,7 +25,7 @@ let () =
     ~service:Services.get_document
     (fun () () -> get_document ());
 
-  let elt = Editor_client.create append_shadowcopy get_shadowcopy in
+  let elt = Editor_client.create add_text get_text in
   Diffsync_app.register
     ~service:Services.main_service
     (fun () () ->
