@@ -6,14 +6,14 @@ open Eliom_lib.Lwt_ops
 open Types
 
 
+}}
+
+{server{
+
 type t =
   { elt : Html5_types.textarea Eliom_content.Html5.D.elt; 
     bus : (bus_message, bus_message) Eliom_bus.t;
     set : (Types.doc -> unit Lwt.t); get : (unit -> Types.doc Lwt.t) }
-
-}}
-
-{server{
 
 let send_patch =
   Eliom_service.Ocaml.post_coservice'
@@ -166,14 +166,10 @@ let onload editor_elt patches_bus  =
     Eliom_registration.Ocaml.register ~service:send_patch (fun () patch -> handler patch);
     { elt; bus; set; get}
 
-
-    
-}}
-{shared{
-
-  let retrieve_elt (elt, _) = elt
+  let get_elt t = t.elt
 
   let init_elt t =
-    {unit{ ignore @@ onload %t.elt %t.bus }}
-
+    (* let elt = t.elt in
+    let bus = t.bus in *)
+    {unit{ print_endline "lol"(*onload %elt %bus *) }}
 }}

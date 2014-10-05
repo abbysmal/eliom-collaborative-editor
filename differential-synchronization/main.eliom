@@ -16,27 +16,20 @@ let () =
   let eref = Eliom_reference.eref ~scope:Eliom_common.site_scope
       (Types.new_document "document") in
 
-
   let append_shadowcopy, get_shadowcopy =
     ((fun elm -> Eliom_reference.set eref elm),
      (fun () -> Eliom_reference.get eref)) in
 
-  let handler = Patches.handle_patch_request get_shadowcopy append_shadowcopy
-  patches_bus in
-  Eliom_registration.Ocaml.register
-    ~service:Client.send_patch
-    (fun () patch ->
-       handler patch);
-
-  let get_document name = get_shadowcopy ()
-    >>= fun {Types.id = id; Types.text = scopy} ->
-    Lwt.return (`Result (scopy, id)) in
+  let get_document _ = get_shadowcopy ()
+    >>= fun doc ->
+    Lwt.return (`Result (doc.text, doc.id)) in
 
   Eliom_registration.Ocaml.register
     ~service:Services.get_document
     (fun () () -> get_document ());
 
-  let elt = Eliom_content.Html5.D.raw_textarea ~a:[] ~name:"editor" () in
+  let elt = Client.create "" append_shadowcopy get_shadowcopy in
+  Client.init_elt elt;
   Diffsync_app.register
     ~service:Services.main_service
     (fun () () ->
@@ -47,7 +40,7 @@ let () =
      ~js:[["js";"libs.js"]]
      (body [
          div [h1 [pcdata "Collaborative editor"]];
-         div[elt]
+         div[Client.get_elt elt]
        ])) in
 
     let tmpl = format_page elt in
