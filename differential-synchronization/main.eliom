@@ -23,11 +23,13 @@ let () =
     ~service:Services.get_document
     (fun () () -> get_document ());
 
-  let elt = Editor_client.create "" append_shadowcopy get_shadowcopy in
+  let elt = Editor_client.create append_shadowcopy get_shadowcopy in
   Diffsync_app.register
     ~service:Services.main_service
     (fun () () ->
+  
   let format_page elt =
+  
   (Eliom_tools.F.html
      ~title:"DiffSync Editor"
      ~css:[["css";"editor.css"];["css";"bootstrap.css"];["css";"bootstrap-theme.css"]]

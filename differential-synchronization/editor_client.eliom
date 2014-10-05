@@ -159,7 +159,7 @@ let onload editor_elt patches_bus  =
 
 {server{
 
-  let create txt set get =
+  let create set get =
     let bus = Eliom_bus.create ~scope:Eliom_common.site_scope Json.t<bus_message> in
     let handler = Editor_patches.handle_patch_request get set bus in
     let elt = Eliom_content.Html5.D.raw_textarea ~a:[] ~name:"editor" () in

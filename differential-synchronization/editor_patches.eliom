@@ -76,9 +76,9 @@ let handle_patch_request get_copy append_copy bus (request : request) =
         begin
           let ncopy = { id = cid + 1;
                         text = ntext; } in
-          ignore(append_copy ncopy);
-          ignore(Eliom_bus.write bus (Patch (ruid, (Array.of_list rdiffs), (cid + 1))));
-          Lwt.return (`Applied (cid + 1, ntext))
+          append_copy ncopy;
+          Eliom_bus.write bus (Patch (ruid, (Array.of_list rdiffs), (cid + 1)))
+          >>= (fun () -> Lwt.return (`Applied (cid + 1, ntext)))
         end
       else begin Lwt.return (`Refused (cid, ctext)) end
   in
